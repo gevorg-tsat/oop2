@@ -3,4 +3,5 @@
 
 CMakeFiles/oop_laba2.dir/main.cpp.o: \
  ../btree.h \
+ ../btree.inl \
  ../main.cpp

@@ -83,6 +83,9 @@
 		<Unit filename="/Users/gevorgtsaturyan/CLionProjects/oop-laba2/btree.h">
 			<Option target="oop_laba2"/>
 		</Unit>
+		<Unit filename="/Users/gevorgtsaturyan/CLionProjects/oop-laba2/btree.inl">
+			<Option target="oop_laba2"/>
+		</Unit>
 		<Unit filename="/Users/gevorgtsaturyan/CLionProjects/oop-laba2/main.cpp">
 			<Option target="oop_laba2"/>
 		</Unit>
