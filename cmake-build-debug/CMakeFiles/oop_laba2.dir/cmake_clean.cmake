@@ -1,5 +1,6 @@
 file(REMOVE_RECURSE
   "CMakeFiles/oop_laba2.dir/main.cpp.o"
+  "CMakeFiles/oop_laba2.dir/template.cpp.o"
   "oop_laba2"
   "oop_laba2.pdb"
 )
