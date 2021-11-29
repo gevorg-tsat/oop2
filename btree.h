@@ -14,6 +14,70 @@ template<class K, class V> struct Node {
     V value;
     Node<K, V> *left;
     Node<K, V> *right;
+    Node(const K& key, const V& value) {
+        this->key = key;
+        this->value = value;
+        this->left = nullptr;
+        this->right = nullptr;
+    }
+    bool add(const K& key, const V& value) {
+
+            if (key > this->key) {
+                if (this->right == nullptr) {
+                    Node<K, V> *temp = new Node<K, V>(key, value);
+                    this -> right = temp;
+                    return true;
+                }
+                else
+                    return this->right->add( key, value);
+            } else if (key != this->key){
+                if (this->left == nullptr) {
+                    Node<K, V> *temp = new Node<K, V>(key, value);
+                    this->left = temp;
+                    return true;
+                }
+                else
+                    return this->left->add( key, value);
+            }
+            else return false;
+
+    }
+    bool remove(const K& key) {
+        if (key < this->key) {
+            return this->left->remove(key);
+        }
+        else if (key > this->key) {
+            return this->right->remove(key);
+        }
+        else { //found
+            // No child
+            if (this->left == nullptr && this->right == nullptr) {
+                delete this;
+                //this = nullptr;
+                return true;
+            }
+                //1
+            else if (this->left == nullptr) {
+                Node<K, V> *temporary = this;
+                this = this->right;
+                delete temporary;
+                this->treeSize--;
+            }
+            else if (this->right == nullptr) {
+                Node<K, V> *temporary = this;
+                this = this->left;
+                delete temporary;
+                this->treeSize--;
+            }
+                //2
+            else {
+                Node<K, V> *temporary = findMin(this->right);
+                this->key = temporary->key;
+                this->value = temporary->value;
+                return this->right.remove(key);
+            }
+        }
+    }
 };
 template<class K, class V>
 class Tree {
@@ -25,19 +89,17 @@ public:
     int size() const;
     void toFile(const std::string& path) const;
     void fromFile(const std::string& path);
-    bool operator==(const Tree<K,V> &second) const;
     void add(const K& key, const V& value);
-    void remove(const K& key) const;
+    void remove(const K& key);
     bool contains(const K& key) const;
     V& getValue(const K& key) const;
-    V& operator[](const K& key);
+    V& operator[](const K& key) const;
     std::vector<V> getValues() const;
     std::vector<K> getKeys() const;
     void printTree() const;
 private:
     Node<K,V>* root;
     int treeSize;
-    void add(Node<K,V> **node, const K& key, const V& value);
     Node<K, V>* remove(Node<K, V> *root, const K &key);
     void printTree(Node<K,V> *node) const;
     bool contains(Node<K,V> *node, const K& key) const;
@@ -48,9 +110,10 @@ private:
     void getKeys(std::vector<K> &keys, Node<K, V> *node) const;
 
 };
-
-#include "btree.h"
-
+template<class K, class V>
+V& Tree<K, V>::operator[](const K& key) const{
+    return this->getValue(key);
+}
 template<class K, class V>
 Tree<K,V>::Tree() {
     this->treeSize = 0;
@@ -72,6 +135,8 @@ Tree<K,V>::~Tree(){
 template<class K, class V>
 void Tree<K, V>::clearTree() {
     clearTree(this->root);
+    this->root = nullptr;
+    this->treeSize=0;
 }
 template<class K, class V>
 void Tree<K, V>::clearTree(Node<K, V> *node) {
@@ -120,16 +185,16 @@ void Tree<K, V>::fromFile(const std::string &path) {
     }
 }
 template<class K, class V>
-bool Tree<K,V>::operator==(const Tree<K,V> &second) const{
-    if (this->size() != second.size()) {
+bool operator==(const Tree<K,V> &first, const Tree<K,V> &second) {
+    if (first.size() != second.size()) {
         return false;
     }
-    if (this->size() == 0 && second.size() == 0) {
+    if (first.size() == 0 && second.size() == 0) {
         return true;
     }
-    std::vector<K> firstKeys = this->getKeys();
+    std::vector<K> firstKeys = first.getKeys();
     for (auto key : firstKeys) {
-        if (this[key] != second[key]) {
+        if (first[key] != second[key]) {
             return false;
         }
     }
@@ -137,29 +202,24 @@ bool Tree<K,V>::operator==(const Tree<K,V> &second) const{
 }
 template<class K, class V>
 void Tree<K, V>::add(const K &key, const V &value) {
-    add(&(this->root),key,value);
-}
-template<class K, class V>
-void Tree<K, V>::add(Node<K, V> **node, const K &key, const V &value) {
-    if (*node == nullptr) {
-        Node<K, V> *temp = new Node<K, V>;
-        temp->key = key;
-        temp->value = value;
-        temp->left = nullptr;
-        temp->right = nullptr;
-        *node = temp;
+    if (this->root == nullptr) {
+        Node<K, V> *temp = new Node<K, V>(key, value);
+        this->root = temp;
         this->treeSize++;
-    } else {
-        if (key > (*node)->key) {
-            add(&(*node)->right, key, value);
-        } else if (key != (*node)->key){
-            add(&(*node)->left, key, value);
-        }
     }
+    else
+        if (this->root->add(key,value))
+            this->treeSize++;
 }
 template<class K, class V>
-void Tree<K,V>::remove(const K &key) const {
-    remove(this->root,key);
+void Tree<K,V>::remove(const K &key) {
+    if (this->root == nullptr || !this->contains(key)) {
+        throw std::runtime_error("No such key");
+    }
+    else {
+        if (this->root->remove(key))
+            this->treeSize--;
+    }
 }
 template<class K, class V>
 Node<K, V> * Tree<K,V>::remove(Node<K, V>*root, const K &key) {
@@ -204,11 +264,11 @@ Node<K, V> * Tree<K,V>::remove(Node<K, V>*root, const K &key) {
 }
 template<class K, class V>
 bool Tree<K, V>::contains(const K &key) const {
-    return contains(this->root);
+    return contains(this->root,key);
 }
 template<class K, class V>
 bool Tree<K,V>::contains(Node<K, V> *node, const K &key) const {
-    if (node->key == nullptr)
+    if (node == nullptr)
         return false;
     if (node -> key == key)
         return true;
@@ -237,9 +297,9 @@ V &Tree<K, V>::searchValue(Node<K, V> *node, const K &key) const {
         return node->value;
     }
     if (key > node->key) {
-        return search_node(node->right, key);
+        return searchValue(node->right, key);
     }
-    return search_node(node->left, key);
+    return searchValue(node->left, key);
 }
 template<class K, class V>
 V& Tree<K, V>::getValue(const K &key) const {
@@ -248,10 +308,7 @@ V& Tree<K, V>::getValue(const K &key) const {
     }
     throw std::runtime_error("No such key in map");
 }
-template<class K, class V>
-V& Tree<K, V>::operator[](const K& key) {
-    return this->getValue(key);
-}
+
 template<class K, class V>
 void Tree<K, V>::getValues(std::vector<V> &values, Node<K, V> *node) const {
     if (node != nullptr) {
@@ -269,16 +326,16 @@ std::vector<V> Tree<K, V>::getValues() const {
 template<class K, class V>
 void Tree<K, V>::getKeys(std::vector<K> &keys, Node<K, V> *node) const {
     if (node != nullptr) {
-        get_keys(keys, node->left);
+        getKeys(keys, node->left);
         keys.push_back(node->key);
-        get_keys(keys, node->right);
+        getKeys(keys, node->right);
     }
 }
 
 template<class K, class V>
 std::vector<K> Tree<K, V>::getKeys() const {
     std::vector<K> keys;
-    get_keys(keys, this->root);
+    getKeys(keys, this->root);
     return keys;
 }
 template<class K, class V>

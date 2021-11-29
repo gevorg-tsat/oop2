@@ -129,30 +129,6 @@ oop_laba2/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/oop_laba2.dir/build.make CMakeFiles/oop_laba2.dir/build
 .PHONY : oop_laba2/fast
 
-btree.o: btree.cpp.o
-.PHONY : btree.o
-
-# target to build an object file
-btree.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/oop_laba2.dir/build.make CMakeFiles/oop_laba2.dir/btree.cpp.o
-.PHONY : btree.cpp.o
-
-btree.i: btree.cpp.i
-.PHONY : btree.i
-
-# target to preprocess a source file
-btree.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/oop_laba2.dir/build.make CMakeFiles/oop_laba2.dir/btree.cpp.i
-.PHONY : btree.cpp.i
-
-btree.s: btree.cpp.s
-.PHONY : btree.s
-
-# target to generate assembly for a file
-btree.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/oop_laba2.dir/build.make CMakeFiles/oop_laba2.dir/btree.cpp.s
-.PHONY : btree.cpp.s
-
 main.o: main.cpp.o
 .PHONY : main.o
 
@@ -186,9 +162,6 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... oop_laba2"
-	@echo "... btree.o"
-	@echo "... btree.i"
-	@echo "... btree.s"
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"
