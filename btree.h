@@ -14,69 +14,62 @@ template<class K, class V> struct Node {
     V value;
     Node<K, V> *left;
     Node<K, V> *right;
-    Node(const K& key, const V& value) {
+
+    Node(const K &key, const V &value) {
         this->key = key;
         this->value = value;
         this->left = nullptr;
         this->right = nullptr;
     }
-    bool add(const K& key, const V& value) {
 
-            if (key > this->key) {
-                if (this->right == nullptr) {
-                    Node<K, V> *temp = new Node<K, V>(key, value);
-                    this -> right = temp;
-                    return true;
-                }
-                else
-                    return this->right->add( key, value);
-            } else if (key != this->key){
-                if (this->left == nullptr) {
-                    Node<K, V> *temp = new Node<K, V>(key, value);
-                    this->left = temp;
-                    return true;
-                }
-                else
-                    return this->left->add( key, value);
-            }
-            else return false;
+    bool add(const K &key, const V &value) {
+
+        if (key > this->key) {
+            if (this->right == nullptr) {
+                Node<K, V> *temp = new Node<K, V>(key, value);
+                this->right = temp;
+                return true;
+            } else
+                return this->right->add(key, value);
+        } else if (key != this->key) {
+            if (this->left == nullptr) {
+                Node<K, V> *temp = new Node<K, V>(key, value);
+                this->left = temp;
+                return true;
+            } else
+                return this->left->add(key, value);
+        } else return false;
 
     }
-    bool remove(const K& key) {
-        if (key < this->key) {
-            return this->left->remove(key);
+
+    bool contains(const K &key) const {
+        if (this == nullptr)
+            return false;
+        if (this->key == key)
+            return true;
+        if (key > this->key)
+            return this->right->contains(key);
+        return this->left->contains(key);
+    }
+
+    void printTree() const {
+        if (this != nullptr) {
+            this->left->printTree();
+            std::cout << "Key: " << this->key << " " << "Value: " << this->value << std::endl;
+            this->right->printTree();
         }
-        else if (key > this->key) {
-            return this->right->remove(key);
+    }
+    V& searchValue(const K &key) {
+        if (this == nullptr) {
+            throw std::exception();
         }
-        else { //found
-            // No child
-            if (this->left == nullptr && this->right == nullptr) {
-                delete this;
-                //this = nullptr;
-                return true;
-            }
-                //1
-            else if (this->left == nullptr) {
-                Node<K, V> *temporary = this;
-                this = this->right;
-                delete temporary;
-                this->treeSize--;
-            }
-            else if (this->right == nullptr) {
-                Node<K, V> *temporary = this;
-                this = this->left;
-                delete temporary;
-                this->treeSize--;
-            }
-                //2
-            else {
-                Node<K, V> *temporary = findMin(this->right);
-                this->key = temporary->key;
-                this->value = temporary->value;
-                return this->right.remove(key);
-            }
+        if (key == this->key) {
+            return this->value;
         }
+        if (key > this->key) {
+            return this->right->searchValue(key);
+        }
+        return this->left->searchValue( key);
     }
 };
 template<class K, class V>
@@ -101,14 +94,10 @@ private:
     Node<K,V>* root;
     int treeSize;
     Node<K, V>* remove(Node<K, V> *root, const K &key);
-    void printTree(Node<K,V> *node) const;
-    bool contains(Node<K,V> *node, const K& key) const;
     void clearTree(Node<K,V> *node);
-    V& searchValue(Node<K,V> *node, const K& key) const;
     Node<K,V>* findMin(Node<K,V>* node) const;
     void getValues(std::vector<V> &values, Node<K, V> *node) const;
     void getKeys(std::vector<K> &keys, Node<K, V> *node) const;
-
 };
 template<class K, class V>
 bool operator==(const Tree<K,V> &first, const Tree<K,V> &second) {

@@ -89,13 +89,11 @@ void Tree<K, V>::add(const K &key, const V &value) {
         this->treeSize++;
 }
 template<class K, class V>
-void Tree<K,V>::remove(const K &key) {
-    if (this->root == nullptr || !this->contains(key)) {
-        throw std::runtime_error("No such key");
-    }
-    else {
-        if (this->root->remove(key))
-            this->treeSize--;
+void Tree<K, V>::remove(const K &key) {
+    if (contains(key)) {
+        this->root = remove(this->root, key);
+    } else {
+        return;
     }
 }
 template<class K, class V>
@@ -110,13 +108,13 @@ Node<K, V> * Tree<K,V>::remove(Node<K, V>*root, const K &key) {
         root->right = remove(root->right, key);
     }
     else { //found
-        // No child
+        //0 ch
         if (root->left == nullptr && root->right == nullptr) {
             delete root;
             root = nullptr;
             this->treeSize--;
         }
-            // One child
+            //1
         else if (root->left == nullptr) {
             Node<K, V> *temporary = root;
             root = root->right;
@@ -129,7 +127,7 @@ Node<K, V> * Tree<K,V>::remove(Node<K, V>*root, const K &key) {
             delete temporary;
             this->treeSize--;
         }
-            // Two children
+            //2
         else {
             Node<K, V> *temporary = findMin(root->right);
             root->key = temporary->key;
@@ -141,49 +139,18 @@ Node<K, V> * Tree<K,V>::remove(Node<K, V>*root, const K &key) {
 }
 template<class K, class V>
 bool Tree<K, V>::contains(const K &key) const {
-    return contains(this->root,key);
-}
-template<class K, class V>
-bool Tree<K,V>::contains(Node<K, V> *node, const K &key) const {
-    if (node == nullptr)
-        return false;
-    if (node -> key == key)
-        return true;
-    if (key > node->key)
-        return contains(node->right, key);
-    return contains(node->left, key);
+    return this->root->contains(key);
 }
 template<class K, class V>
 void Tree<K, V>::printTree() const {
-    printTree(this->root);
-}
-template<class K, class V>
-void Tree<K, V>::printTree(Node<K, V> *node) const {
-    if (node != nullptr) {
-        print_in_order(node->left);
-        std::cout << "Key: " << node->key << " " << "Value: " << node->value << std::endl;
-        printTree(node->right);
-    }
-}
-template<class K, class V>
-V &Tree<K, V>::searchValue(Node<K, V> *node, const K &key) const {
-    if (node == nullptr) {
-        throw std::exception();
-    }
-    if (key == node->key) {
-        return node->value;
-    }
-    if (key > node->key) {
-        return searchValue(node->right, key);
-    }
-    return searchValue(node->left, key);
+    this->root->printTree();
 }
 template<class K, class V>
 V& Tree<K, V>::getValue(const K &key) const {
     if (this->contains(key)) {
-        return searchValue(this->root, key);
+        return this->root->searchValue(key);
     }
-    throw std::runtime_error("No such key in map");
+    throw std::runtime_error("No such key in treemap");
 }
 
 template<class K, class V>
